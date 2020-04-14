@@ -1,5 +1,5 @@
 # habitly
-We dream of a world where everyone reaches their biggest goals?
+We dream of a world where everyone reaches their biggest goals.
 
 Q: How do we get there? 
 A: Baby Steps. Also known as habits.
