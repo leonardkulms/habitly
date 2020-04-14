@@ -1,16 +1,59 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:habitly/db_connection.dart';
+import 'package:sqflite/sqflite.dart';
 
 /// Information about a [Habit].
 class Habit extends StatefulWidget {
 
-  Habit({ Key key, this.name, this.semanticLabel});
-
+  final int id;
   final String name;
-  final String semanticLabel;
+
+  Habit({ this.id, this.name});
+
+  // Convert a Habit into a Map.
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+    };
+  }
 
   @override
   _HabitState createState() => _HabitState();
 }
+
+// insert a @Habit into the database
+Future<void> insertHabit(Habit habit) async {
+  // Get a reference to the database.
+  final Database db = await openData();
+
+  // Insert the Habit into the correct table.
+  // conflictAlgorithm in case the same habit is inserted twice, replace any previous data.
+  await db.insert(
+    'habits',
+    habit.toMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
+}
+
+// A method that retrieves all the habits from the habits table.
+Future<List<Habit>> habits() async {
+  // Get a reference to the database.
+  final Database db = await openData();
+
+  // Query the table for all The Dogs.
+  final List<Map<String, dynamic>> maps = await db.query('habits');
+
+  // Convert the List<Map<String, dynamic> into a List<Habit>.
+  return List.generate(maps.length, (i) {
+    return Habit(
+      id: maps[i]['id'],
+      name: maps[i]['name'],
+    );
+  });
+}
+
 
 class _HabitState extends State<Habit> {
   /// A [Habit] stores its name
@@ -34,7 +77,7 @@ class _HabitState extends State<Habit> {
     return Material(
       color: Colors.transparent,
       child: Container(
-        height: 100.0,
+        height: 90.0,
         child: InkWell(
           onTap: () => toggle(),
           child: Padding(
@@ -66,5 +109,4 @@ class _HabitState extends State<Habit> {
       ),
     );
   }
-
 }
